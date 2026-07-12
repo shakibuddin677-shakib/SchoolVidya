@@ -117,11 +117,9 @@ export const createStudent = async (req, res) => {
 
       // Email fail bhi ho jaye to poori request fail nahi honi chahiye -
       // account to ban chuka hai, sirf email delivery ek "best-effort" hai
-      try {
-        await sendEmail({ email, subject: "Your EduCore Account Credentials", html });
-      } catch (emailError) {
+      sendEmail({ email, subject: "Your EduCore Account Credentials", html }).catch((emailError) => {
         console.error("Credentials email failed to send:", emailError.message);
-      }
+      });
     }
 
     return res.status(201).json({
