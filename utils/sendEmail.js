@@ -1,18 +1,19 @@
 import nodemailer from "nodemailer";
 
-// Generic email bhejne wala function - forgot password, notices, fee reminders
-// sabke liye reuse hoga
 const sendEmail = async ({ email, subject, html }) => {
   try {
     console.log("USING HOST:", process.env.BREVO_HOST, "| USER:", process.env.BREVO_USER);
+
+    const port = Number(process.env.BREVO_PORT);
     const transporter = nodemailer.createTransport({
       host: process.env.BREVO_HOST,
-      port: Number(process.env.BREVO_PORT),
-      secure: false, // true only if port is 465
+      port,
+      secure: port === 465, // sirf port 465 par true, 587/2525 par false
       auth: {
         user: process.env.BREVO_USER,
         pass: process.env.BREVO_PASS,
       },
+      connectionTimeout: 10000, // 10 sec - jaldi fail ho jaye, response atka na rahe
     });
 
     const mailOptions = {
