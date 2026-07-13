@@ -7,6 +7,7 @@ import Result from "../models/result.model.js";
 import FeePayment from "../models/feePayment.model.js";
 import HomeworkSubmission from "../models/homeworkSubmission.model.js";
 import BookIssue from "../models/bookIssue.model.js";
+import Book from "../models/book.model.js";
 import Timetable from "../models/timetable.model.js";
 import Section from "../models/section.model.js";
 import bcrypt from "bcryptjs";
@@ -326,6 +327,32 @@ export const deleteUser = async (req, res) => {
       const studentProfile = await Student.findOne({ userId: user._id });
 
       if (studentProfile) {
+        // BUG FIX: agar is student ke paas koi book abhi bhi "issued" status
+        // mein thi (return nahi hui thi) aur hum seedha BookIssue.deleteMany
+        // kar dete, to us book ki Book.availableCopies HAMESHA ke liye kam
+        // rehti - jaise library ne ek copy permanently kho di ho, jab ki
+        // asal mein woh copy shelf pe wapas rakhi ja sakti thi. Isliye
+        // delete se PEHLE, har unreturned issue ke liye availableCopies
+        // ko +1 karke wapas restore karte hain.
+        const unreturnedIssues = await BookIssue.find({
+          studentId: studentProfile._id,
+          status: { $ne: "returned" },
+        }).select("bookId");
+
+        if (unreturnedIssues.length > 0) {
+          const bookCounts = new Map();
+          unreturnedIssues.forEach((issue) => {
+            const key = issue.bookId.toString();
+            bookCounts.set(key, (bookCounts.get(key) || 0) + 1);
+          });
+
+          await Promise.all(
+            Array.from(bookCounts.entries()).map(([bookId, count]) =>
+              Book.findByIdAndUpdate(bookId, { $inc: { availableCopies: count } })
+            )
+          );
+        }
+
         // CASCADE DELETE: is Student ki saari related records bhi saaf karo,
         // warna yeh "orphaned" documents ban jaate hain - jo baad mein
         // Reports (Fee Collection, Exam Performance) mein galat numbers
