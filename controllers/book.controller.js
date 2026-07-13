@@ -140,8 +140,21 @@ export const addBookCopies = async (req, res) => {
 // ================== DELETE BOOK ==================
 export const deleteBook = async (req, res) => {
   try {
-    const deleted = await Book.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ success: false, message: "Book not found" });
+    const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ success: false, message: "Book not found" });
+
+    // BUG FIX: agar is book ki kuch copies abhi kisi student ke paas
+    // ISSUED hain (availableCopies < totalCopies), to delete allow nahi
+    // karte - warna BookIssue records ek deleted book ko point karte reh
+    // jaate (orphan reference), aur "Return" karte waqt crash ho sakta tha
+    if (book.availableCopies < book.totalCopies) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot delete - some copies of this book are currently issued to students",
+      });
+    }
+
+    await Book.findByIdAndDelete(req.params.id);
 
     return res.status(200).json({ success: true, message: "Book deleted successfully" });
   } catch (error) {
