@@ -7,10 +7,7 @@ const attendanceSchema = new mongoose.Schema(
       ref: "Student",
       required: true,
     },
-    // classId aur sectionId yahan bhi rakhe (Student mein already hain) -
-    // yeh THODA "duplicate" data hai, lekin isse attendance dhoondne mein
-    // (jaise "Section X ka aaj ka attendance dikhao") baar baar Student
-    // ko "populate" nahi karna padta - direct query fast ho jaati hai
+    // classId aur sectionId yahan bhi rakhe (Student mein already hain) - yeh THODA "duplicate" data hai, lekin isse attendance dhoondne mein
     classId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",

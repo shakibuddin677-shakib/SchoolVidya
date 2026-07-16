@@ -27,7 +27,7 @@ router.get(
   getPaymentsByStructure
 );
 
-// FEATURE: Fee Receipt - payment history list (fee page) + single receipt detail
+// Fee Receipt - payment history list (fee page) + single receipt detail
 router.get(
   "/student/:studentId/receipts",
   isAuthenticated,

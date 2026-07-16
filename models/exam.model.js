@@ -25,10 +25,7 @@ const examSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    // Jab tak Admin explicitly "Release Results" na kare, Students ko
-    // is exam ke marks bilkul nahi dikhenge (chahe Teacher ne sab
-    // subjects ke marks kabhi ke enter kar diye ho) - Admin/Teacher
-    // hamesha dekh sakte hain, sirf Student role ke liye yeh gate hai
+    // Jab tak Admin explicitly "Release Results" na kare, Students ko is exam ke marks bilkul nahi dikhenge
     isPublished: {
       type: Boolean,
       default: false,

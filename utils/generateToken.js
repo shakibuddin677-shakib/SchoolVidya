@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 
-// Yeh function ek JWT token banata hai jisme user ki id "hidden" hoti hai
-// Login ke baad yeh token client ko diya jata hai
-// Har request pe client yeh token bhejega, aur hum verify karenge ki yeh valid hai ya nahi
+// Yeh function ek JWT token banata hai jisme user ki id "hidden" hoti hai Login ke baad yeh token client ko diya jata hai Har request pe client yeh token
 const generateToken = (userId) => {
   return jwt.sign(
     { id: userId },

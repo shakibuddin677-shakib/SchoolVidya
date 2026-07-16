@@ -1,13 +1,6 @@
 import Attendance from "../models/attendance.model.js";
 
-// ================== MARK ATTENDANCE (BULK) ==================
-// Poori class ka attendance EK HI request mein - har student ke liye
-// alag API call karne ki zaroorat nahi
-//
-// Body: {
-//   classId, sectionId, date,
-//   records: [ { studentId: "...", status: "present" }, { studentId: "...", status: "absent" } ]
-// }
+// poori class ka attendance ek hi request mein le lete hain, har student ke liye alag API call ki zaroorat nahi
 export const markAttendance = async (req, res) => {
   try {
     const { classId, sectionId, date, records } = req.body;
@@ -19,8 +12,7 @@ export const markAttendance = async (req, res) => {
       });
     }
 
-    // Har student ke liye ek "updateOne" operation banate hain,
-    // sabko ek array mein daal ke ek hi bulkWrite() mein bhej dete hain
+    // Har student ke liye ek "updateOne" operation banate hain, sabko ek array mein daal ke ek hi bulkWrite() mein bhej dete hain
     const bulkOps = records.map((record) => ({
       updateOne: {
         filter: { studentId: record.studentId, date }, // isko dhoondo
@@ -51,8 +43,7 @@ export const markAttendance = async (req, res) => {
   }
 };
 
-// ================== GET ATTENDANCE - EK SECTION, EK DIN ==================
-// Example: GET /api/attendance/section?sectionId=...&date=2024-07-04
+// GET /api/attendance/section?sectionId=...&date=2024-07-04
 export const getAttendanceBySection = async (req, res) => {
   try {
     const { sectionId, date } = req.query;
@@ -74,9 +65,7 @@ export const getAttendanceBySection = async (req, res) => {
   }
 };
 
-// ================== GET ATTENDANCE - EK STUDENT KI POORI HISTORY ==================
-// Student apna dashboard kholega to yeh use hoga - poori history + summary
-// Optional: ?month=7&year=2026 se sirf ek specific mahine ka data mil sakta hai
+// Student apna dashboard kholega to yeh use hoga - poori history + summary Optional: ?month=7&year=2026 se sirf ek specific mahine ka data mil sakta hai
 export const getAttendanceByStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
@@ -101,9 +90,7 @@ export const getAttendanceByStudent = async (req, res) => {
 
     const totalDays = records.length;
 
-    // Percentage nikalne ka formula: "present" din poore count hote hain,
-    // "late" bhi poora din mana jata hai (school phir bhi aaya), aur
-    // "halfday" ko AADHA din count karte hain
+    // "present" din poore count hote hain, "late" bhi poora din mana jata hai (school phir bhi aaya), aur "halfday" ko AADHA din count karte hain
     const presentEquivalent = summary.present + summary.late + summary.halfday * 0.5;
     const attendancePercentage =
       totalDays > 0 ? Number(((presentEquivalent / totalDays) * 100).toFixed(2)) : 0;
@@ -122,7 +109,6 @@ export const getAttendanceByStudent = async (req, res) => {
   }
 };
 
-// ================== UPDATE EK SINGLE RECORD ==================
 // Agar Teacher ne galti se galat mark kar diya, isse fix karenge
 export const updateAttendance = async (req, res) => {
   try {

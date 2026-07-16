@@ -11,9 +11,7 @@ import allowRoles from "../middleware/role.middleware.js";
 
 const router = express.Router();
 
-// Har route pehle "isAuthenticated" (ID check) se guzarta hai,
-// phir "allowRoles" (permission check) se - order IMPORTANT hai
-// kyunki allowRoles ko req.user chahiye jo isAuthenticated banata hai
+// Har route pehle "isAuthenticated" (ID check) se guzarta hai, phir "allowRoles" (permission check) se - order IMPORTANT hai kyunki allowRoles ko req.user
 
 // Sirf Admin naya class bana sakta hai
 router.post("/", isAuthenticated, allowRoles("admin"), createClass);

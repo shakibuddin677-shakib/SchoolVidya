@@ -1,9 +1,6 @@
 import multer from "multer";
 
-// memoryStorage() ka matlab hai file server ke disk pe save NAHI hogi -
-// seedha RAM mein ek "buffer" (raw bytes) ke roop mein rahegi, jise
-// hum turant Cloudinary ko bhej denge. Isse temp files clean karne
-// ki zaroorat nahi padti
+// memoryStorage() se file disk pe save nahi hoti, seedha RAM mein buffer ke roop mein rehti hai jise turant Cloudinary bhej dete hain
 const storage = multer.memoryStorage();
 
 // Sirf image files allow karo - koi bhi PDF/EXE waghera upload na ho sake

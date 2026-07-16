@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-// Yeh function MongoDB se connection banata hai
-// async isliye kyunki DB connect hone mein time lagta hai
+// Yeh function MongoDB se connection banata hai async isliye kyunki DB connect hone mein time lagta hai
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL);

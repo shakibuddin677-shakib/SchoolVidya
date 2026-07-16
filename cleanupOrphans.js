@@ -1,10 +1,4 @@
-// Yeh script SIRF EK BAAR chalana hai - purane deletions se bache
-// "orphaned" records (jinke Student/Class ab exist hi nahi karte) ko
-// dhoondh kar delete karta hai. Chalane ka tarika:
-//
-//   cd Backend
-//   node cleanupOrphans.js
-//
+// Yeh script SIRF EK BAAR chalana hai - purane deletions se bache "orphaned" records (jinke Student/Class ab exist hi nahi karte) ko dhoondh kar delete karta hai.
 import "dotenv/config";
 import mongoose from "mongoose";
 import Student from "./models/student.model.js";
@@ -25,7 +19,7 @@ const run = async () => {
   await mongoose.connect(process.env.MONGO_URL);
   console.log(" Connected to MongoDB\n");
 
-  // ---------- STEP 1: Student se related orphaned records ----------
+  // Student se related orphaned records
   const validStudentIds = (await Student.find().select("_id")).map((s) => s._id.toString());
 
   const cleanByStudent = async (Model, name) => {
@@ -43,7 +37,7 @@ const run = async () => {
   await cleanByStudent(HomeworkSubmission, "HomeworkSubmission");
   await cleanByStudent(BookIssue, "BookIssue");
 
-  // ---------- STEP 2: Class se related orphaned records ----------
+  // Class se related orphaned records
   const validClassIds = (await Class.find().select("_id")).map((c) => c._id.toString());
 
   const cleanByClass = async (Model, name) => {
@@ -57,8 +51,7 @@ const run = async () => {
   };
 
   const orphanFeeStructureIds = await cleanByClass(FeeStructure, "FeeStructure");
-  // In deleted FeeStructures se judi FeePayments bhi hatao (yehi wo
-  // records the jo negative "pending" amount bana rahe the)
+  // In deleted FeeStructures se judi FeePayments bhi hatao (yehi wo records the jo negative "pending" amount bana rahe the)
   if (orphanFeeStructureIds.length > 0) {
     const paymentResult = await FeePayment.deleteMany({ feeStructureId: { $in: orphanFeeStructureIds } });
     console.log(` FeePayment (linked to deleted FeeStructures): removed ${paymentResult.deletedCount} record(s)`);

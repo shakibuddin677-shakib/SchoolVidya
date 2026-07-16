@@ -1,6 +1,4 @@
-// Yeh function SIRF HTML string banata hai - email bhejta nahi
-// (bhejna sendEmail.js ka kaam hai) - isse "content" aur "delivery"
-// alag-alag rehte hain, jaisa hum forgot-password mein bhi kar chuke hain
+// yeh sirf HTML string banata hai, actual email bhejna sendEmail.js ka kaam hai
 const credentialsEmailTemplate = ({ name, email, password, role, loginUrl }) => `
   <div style="font-family: Arial, sans-serif; padding: 24px; max-width: 480px; margin: 0 auto; background: #f5f7f6;">
     <div style="background: #10231D; padding: 20px; border-radius: 10px 10px 0 0;">

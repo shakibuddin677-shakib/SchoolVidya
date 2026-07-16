@@ -1,6 +1,6 @@
 import Book from "../models/book.model.js";
 
-// ================== ADD BOOK ==================
+// add book
 export const createBook = async (req, res) => {
   try {
     const { title, author, isbn, category, totalCopies } = req.body;
@@ -38,7 +38,7 @@ export const createBook = async (req, res) => {
   }
 };
 
-// ================== GET ALL BOOKS (title ya author se search) ==================
+// get all books (title ya author se search)
 export const getAllBooks = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -71,7 +71,7 @@ export const getAllBooks = async (req, res) => {
   }
 };
 
-// ================== GET SINGLE BOOK ==================
+// get single book
 export const getBookById = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
@@ -83,7 +83,7 @@ export const getBookById = async (req, res) => {
   }
 };
 
-// ================== UPDATE BOOK ==================
+// update book
 export const updateBook = async (req, res) => {
   try {
     const { title, author, category } = req.body;
@@ -106,10 +106,7 @@ export const updateBook = async (req, res) => {
   }
 };
 
-// ================== ADD COPIES (restock) ==================
-// Existing book ki quantity BADHANE ke liye - totalCopies aur
-// availableCopies dono ko usi count se increment karta hai (currently
-// issued copies untouched rehte hain, sirf naye copies shelf pe add hote hain)
+// Existing book ki quantity BADHANE ke liye - totalCopies aur availableCopies dono ko usi count se increment karta hai
 export const addBookCopies = async (req, res) => {
   try {
     const { count } = req.body;
@@ -137,16 +134,13 @@ export const addBookCopies = async (req, res) => {
   }
 };
 
-// ================== DELETE BOOK ==================
+// delete book
 export const deleteBook = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
     if (!book) return res.status(404).json({ success: false, message: "Book not found" });
 
-    // BUG FIX: agar is book ki kuch copies abhi kisi student ke paas
-    // ISSUED hain (availableCopies < totalCopies), to delete allow nahi
-    // karte - warna BookIssue records ek deleted book ko point karte reh
-    // jaate (orphan reference), aur "Return" karte waqt crash ho sakta tha
+    // kisi book ki copies abhi issued hain to delete allow nahi karte, warna BookIssue records ek deleted book ko point karte reh jaate
     if (book.availableCopies < book.totalCopies) {
       return res.status(400).json({
         success: false,

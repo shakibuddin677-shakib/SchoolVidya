@@ -9,7 +9,7 @@ import FeeStructure from "../models/feeStructure.model.js";
 import Result from "../models/result.model.js";
 import { ensureCurrentMonthTuitionFees } from "../utils/feeAutomation.js";
 
-// ================== DASHBOARD STATS (Admin Dashboard ke top wale cards) ==================
+// dashboard stats (Admin Dashboard ke top wale cards)
 export const getDashboardStats = async (req, res) => {
   try {
     // Promise.all - sab counts ek saath PARALLEL mein nikal lo, ek-ek karke nahi
@@ -29,12 +29,7 @@ export const getDashboardStats = async (req, res) => {
   }
 };
 
-// ================== ATTENDANCE REPORT (class-wise %) ==================
-// FEATURE: optional ?classId=... query param.
-// - No classId ("Overall") -> every class, grouped (same as before).
-// - classId given -> only that one class's attendance is aggregated,
-//   so both the "by class" bar chart and the "overall %" card can reuse
-//   this same endpoint for a single-class view.
+// optional ?classId=...
 export const getAttendanceReport = async (req, res) => {
   try {
     const { classId } = req.query;
@@ -45,14 +40,13 @@ export const getAttendanceReport = async (req, res) => {
 
     const pipeline = [];
 
-    // Jab specific class chuni gayi ho, sabse pehle sirf usi class ke
-    // records tak seemit kar do - baaki pipeline pehle jaisa hi rahega
+    // Jab specific class chuni gayi ho, sabse pehle sirf usi class ke records tak seemit kar do - baaki pipeline pehle jaisa hi rahega
     if (classId) {
       pipeline.push({ $match: { classId: new mongoose.Types.ObjectId(classId) } });
     }
 
     pipeline.push(
-      // STAGE 1: $group - sab attendance records ko "classId" ke hisaab se group karo
+      // $group - sab attendance records ko "classId" ke hisaab se group karo
       {
         $group: {
           _id: "$classId", // isi field ki value ke hisaab se alag-alag groups banenge
@@ -63,7 +57,7 @@ export const getAttendanceReport = async (req, res) => {
           },
         },
       },
-      // STAGE 2: $lookup - "populate" jaisa hi hai, bas aggregate mein iska yeh naam hai
+      // $lookup - "populate" jaisa hi hai, bas aggregate mein iska yeh naam hai
       {
         $lookup: {
           from: "classes", // MongoDB collection ka naam hamesha lowercase + plural
@@ -72,8 +66,7 @@ export const getAttendanceReport = async (req, res) => {
           as: "classInfo", // result yahan ek ARRAY mein aayega
         },
       },
-      // STAGE 3: $project - sirf jo fields chahiye wahi output karo,
-      // aur percentage yahin calculate kar do
+      // $project - sirf jo fields chahiye wahi output karo, aur percentage yahin calculate kar do
       {
         $project: {
           className: { $arrayElemAt: ["$classInfo.name", 0] }, // array ka pehla item nikalo
@@ -97,15 +90,10 @@ export const getAttendanceReport = async (req, res) => {
   }
 };
 
-// ================== FEE COLLECTION REPORT ==================
-// FEATURE: optional ?classId=... query param.
-// - No classId ("Overall") -> totals across every class (as before).
-// - classId given -> totals only for that one class's fee structures
-//   and the payments made against them.
+// optional ?classId=...
 export const getFeeCollectionReport = async (req, res) => {
   try {
-    // Dashboard/report kholte hi turant check kar lo ki current month ka
-    // Tuition Fee structure kisi class ka missing to nahi hai
+    // Dashboard/report kholte hi turant check kar lo ki current month ka Tuition Fee structure kisi class ka missing to nahi hai
     await ensureCurrentMonthTuitionFees();
 
     const { classId } = req.query;
@@ -114,17 +102,12 @@ export const getFeeCollectionReport = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid classId" });
     }
 
-    // BUG FIX (kept from earlier fix): FeeStructure is a per-CLASS "price
-    // list" (e.g. "Class 5, Term 1, Tuition Fee, ₹5000") - it is shared by
-    // every student in that class, it's NOT a per-student amount. So we
-    // multiply each structure's amount by however many students are
-    // actually enrolled in that class, instead of just summing prices once.
+    // FeeStructure ek per-class price list hai, ek student ka amount nahi - isliye amount ko class ke enrolled students count se multiply karte hain
     const structureFilter = classId ? { classId } : {};
 
     const [feeStructures, studentCounts] = await Promise.all([
       FeeStructure.find(structureFilter),
-      // "how many students are in each class" - if a classId filter is
-      // active, only count students in that class
+      // "how many students are in each class" - if a classId filter is active, only count students in that class
       Student.aggregate([
         ...(classId ? [{ $match: { classId: new mongoose.Types.ObjectId(classId) } }] : []),
         { $group: { _id: "$classId", count: { $sum: 1 } } },
@@ -140,17 +123,14 @@ export const getFeeCollectionReport = async (req, res) => {
       return sum + structure.amount * studentsInClass;
     }, 0);
 
-    // Collected amount ko bhi sirf isi class ke fee structures tak seemit
-    // karo - warna "class-wise" view mein doosri classes ka collection bhi
-    // mix ho jayega
+    // Collected amount ko bhi sirf isi class ke fee structures tak seemit karo - warna "class-wise" view mein doosri classes ka collection bhi mix ho jayega
     const structureIds = feeStructures.map((s) => s._id);
     const totalCollectedResult = await FeePayment.aggregate([
       { $match: { feeStructureId: { $in: structureIds } } },
       { $group: { _id: null, totalCollected: { $sum: "$amountPaid" } } },
     ]);
 
-    // Agar koi payment record hi nahi hai, aggregate KHAALI array [] deta hai -
-    // isliye "?." (optional chaining) + "|| 0" use karke safe rehte hain
+    // Agar koi payment record hi nahi hai, aggregate KHAALI array [] deta hai - isliye "?." (optional chaining) + "|| 0" use karke safe rehte hain
     const collected = totalCollectedResult[0]?.totalCollected || 0;
 
     return res.status(200).json({
@@ -167,13 +147,10 @@ export const getFeeCollectionReport = async (req, res) => {
   }
 };
 
-// ================== BEST TEACHERS (ranked by their subjects' avg marks) ==================
-// Teacher ke paas seedha "performance" nahi hota - hum unke padhaye hue
-// subjects ke Result-average ko unke saath jodte hain, aur un averages ka
-// weighted mean (student-count se weighted) nikaal ke rank karte hain.
+// teacher ka apna koi direct "performance" nahi hota, unke padhaye subjects ke result-average ka weighted mean nikaal ke deta hain
 export const getBestTeachers = async (req, res) => {
   try {
-    // Step 1: har subject ka average marks + kitne students ne diya (weight ke liye)
+    // har subject ka average marks + kitne students ne diya (weight ke liye)
     const subjectPerf = await Result.aggregate([
       {
         $lookup: {
@@ -195,7 +172,7 @@ export const getBestTeachers = async (req, res) => {
 
     const subjectPerfMap = new Map(subjectPerf.map((s) => [s._id.toString(), s]));
 
-    // Step 2: har Teacher ke apne subjects ke averages ko combine karo
+    // har Teacher ke apne subjects ke averages ko combine karo
     const teachers = await Teacher.find()
       .populate("userId", "name")
       .select("userId qualification employeeId subjects");
@@ -230,14 +207,7 @@ export const getBestTeachers = async (req, res) => {
   }
 };
 
-// ================== STUDENT PROGRESS (per-student overall % ranking) ==================
-// Har Result document ka percentage nikaal ke, studentId ke hisaab se average
-// karta hai - "Best Performers" (section-wise) aur "Student Progress"
-// (student-wise) dono widgets isi ek response se bante hain.
-//
-// FEATURE: optional ?sectionIds=id1,id2,id3 query param (comma-separated).
-// - Diya gaya -> sirf un sections ke students (jaise ek Teacher ke apne sections)
-// - Nahi diya -> poore school ke students (Admin/overall view)
+// Har Result document ka percentage nikaal ke, studentId ke hisaab se average karta hai - "Best Performers" (section-wise) aur "Student Progress" (student-wise)
 export const getStudentProgress = async (req, res) => {
   try {
     const { sectionIds } = req.query;
@@ -338,17 +308,7 @@ export const getStudentProgress = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-// FEATURE: optional ?classId=... query param.
-// - No classId ("Overall") -> subject averages across every class (as before).
-// - classId given -> subject averages only for exams belonging to that class.
-//   (Result doesn't store classId directly, so we trace
-//    Result -> ExamSchedule -> Exam.classId to filter.)
-//
-// ALSO: har subject ke saath uski OWN class ka naam bhi return karte hain
-// (className) - kyunki Subject model class-scoped hai (jaise "Mathematics"
-// Class 5 ke liye aur "Mathematics" Class 8 ke liye do ALAG documents hain).
-// Sirf subjectName dikhane se same-naam wale subjects duplicate jaise
-// dikhte the - className isko disambiguate karta hai.
+// optional ?classId=...
 export const getExamPerformanceReport = async (req, res) => {
   try {
     const { classId } = req.query;
@@ -358,8 +318,7 @@ export const getExamPerformanceReport = async (req, res) => {
     }
 
     const pipeline = [
-      // Result ke paas seedha subjectId nahi hai - pehle ExamSchedule
-      // join karna padega taaki subjectId mil sake
+      // Result ke paas seedha subjectId nahi hai - pehle ExamSchedule join karna padega taaki subjectId mil sake
       {
         $lookup: {
           from: "examschedules",
@@ -368,14 +327,11 @@ export const getExamPerformanceReport = async (req, res) => {
           as: "schedule",
         },
       },
-      // $lookup hamesha ARRAY deta hai, lekin yahan hume pata hai
-      // ek Result ka EK hi schedule hoga - $unwind array ko "flatten"
-      // karke seedha object bana deta hai
+      // $lookup hamesha ARRAY deta hai, lekin yahan hume pata hai ek Result ka EK hi schedule hoga - $unwind array ko "flatten" karke seedha object bana deta hai
       { $unwind: "$schedule" },
     ];
 
-    // classId filter ke liye ek aur $lookup zaroori hai - Exam mein hi
-    // classId hota hai, ExamSchedule mein nahi
+    // classId filter ke liye ek aur $lookup zaroori hai - Exam mein hi classId hota hai, ExamSchedule mein nahi
     if (classId) {
       pipeline.push(
         {
@@ -409,12 +365,9 @@ export const getExamPerformanceReport = async (req, res) => {
           as: "subjectInfo",
         },
       },
-      // subjectInfo ek array hai - flatten karo. preserveNullAndEmptyArrays:
-      // agar subject baad mein delete ho gaya ho, tab bhi yeh row drop nahi
-      // hogi (pehle jaisa $arrayElemAt tolerant behaviour hi rakha hai)
+      // subjectInfo ek array hai - flatten karo.
       { $unwind: { path: "$subjectInfo", preserveNullAndEmptyArrays: true } },
-      // Subject ki apni class ka naam laane ke liye ek aur lookup -
-      // subjectInfo.classId se "classes" collection join karo
+      // Subject ki apni class ka naam laane ke liye ek aur lookup - subjectInfo.classId se "classes" collection join karo
       {
         $lookup: {
           from: "classes",

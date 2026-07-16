@@ -16,8 +16,7 @@ router.get("/logout", logoutUser);
 router.post("/forgot-password", forgotPassword);
 router.put("/reset-password/:token", resetPassword);
 
-// Yeh route "isAuthenticated" middleware se PROTECTED hai -
-// bina valid token ke yahan tak pahuchoge hi nahi
+// Yeh route "isAuthenticated" middleware se PROTECTED hai - bina valid token ke yahan tak pahuchoge hi nahi
 router.get("/check-auth", isAuthenticated, checkAuth);
 
 export default router;

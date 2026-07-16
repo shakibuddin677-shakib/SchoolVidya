@@ -12,8 +12,7 @@ import upload from "../middleware/upload.middleware.js";
 
 const router = express.Router();
 
-// upload.single("attachment") - agar file bheji, req.file bharega;
-// agar nahi bheji, req.file undefined rahega (controller khud handle karta hai)
+// upload.single("attachment") - agar file bheji, req.file bharega; agar nahi bheji, req.file undefined rahega (controller khud handle karta hai)
 router.post(
   "/",
   isAuthenticated,

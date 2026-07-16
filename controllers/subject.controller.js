@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import Subject from "../models/subject.model.js";
 import Class from "../models/class.model.js";
 
-// ================== CREATE SUBJECT ==================
+// create subject
 export const createSubject = async (req, res) => {
   try {
     const { name, code, classId } = req.body;
@@ -43,8 +43,7 @@ export const createSubject = async (req, res) => {
   }
 };
 
-// ================== GET ALL SUBJECTS ==================
-// ?classId=... se ek specific class ke subjects filter kar sakte ho
+// ?classId=...
 export const getAllSubjects = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -75,7 +74,7 @@ export const getAllSubjects = async (req, res) => {
   }
 };
 
-// ================== GET SINGLE SUBJECT ==================
+// get single subject
 export const getSubjectById = async (req, res) => {
   try {
     const subject = await Subject.findById(req.params.id).populate(
@@ -93,7 +92,7 @@ export const getSubjectById = async (req, res) => {
   }
 };
 
-// ================== UPDATE SUBJECT ==================
+// update subject
 export const updateSubject = async (req, res) => {
   try {
     const { name, code } = req.body;
@@ -118,7 +117,7 @@ export const updateSubject = async (req, res) => {
   }
 };
 
-// ================== DELETE SUBJECT ==================
+// delete subject
 export const deleteSubject = async (req, res) => {
   try {
     const deletedSubject = await Subject.findByIdAndDelete(req.params.id);

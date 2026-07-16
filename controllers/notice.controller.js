@@ -1,6 +1,6 @@
 import Notice from "../models/notice.model.js";
 
-// ================== CREATE NOTICE ==================
+// create notice
 export const createNotice = async (req, res) => {
   try {
     const { title, description, targetAudience, expiryDate } = req.body;
@@ -27,9 +27,7 @@ export const createNotice = async (req, res) => {
   }
 };
 
-// ================== GET ACTIVE NOTICES (role-based + non-expired) ==================
-// Student/Teacher jab apna dashboard kholega, yahi API call hoga -
-// sirf UNKE liye relevant, abhi tak valid notices dikhenge
+// Student/Teacher jab apna dashboard kholega, yahi API call hoga - sirf UNKE liye relevant, abhi tak valid notices dikhenge
 export const getActiveNotices = async (req, res) => {
   try {
     const userRole = req.user.role; // "student", "teacher", ya "admin"
@@ -53,7 +51,7 @@ export const getActiveNotices = async (req, res) => {
   }
 };
 
-// ================== GET ALL NOTICES (admin - expired bhi dikhega) ==================
+// get all notices (admin - expired bhi dikhega)
 export const getAllNotices = async (req, res) => {
   try {
     const notices = await Notice.find().populate("createdBy", "name").sort({ publishDate: -1 });
@@ -64,7 +62,7 @@ export const getAllNotices = async (req, res) => {
   }
 };
 
-// ================== UPDATE NOTICE ==================
+// update notice
 export const updateNotice = async (req, res) => {
   try {
     const { title, description, targetAudience, expiryDate } = req.body;
@@ -87,7 +85,7 @@ export const updateNotice = async (req, res) => {
   }
 };
 
-// ================== DELETE NOTICE ==================
+// delete notice
 export const deleteNotice = async (req, res) => {
   try {
     const deleted = await Notice.findByIdAndDelete(req.params.id);

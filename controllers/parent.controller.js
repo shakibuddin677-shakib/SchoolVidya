@@ -1,7 +1,7 @@
 import Parent from "../models/parent.model.js";
 import Student from "../models/student.model.js";
 
-// ================== CREATE PARENT (standalone) ==================
+// create parent (standalone)
 export const createParent = async (req, res) => {
   try {
     const { name, email, phone, occupation } = req.body;
@@ -22,7 +22,7 @@ export const createParent = async (req, res) => {
   }
 };
 
-// ================== GET ALL PARENTS ==================
+// get all parents
 export const getAllParents = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
@@ -52,7 +52,7 @@ export const getAllParents = async (req, res) => {
   }
 };
 
-// ================== UPDATE PARENT ==================
+// update parent
 export const updateParent = async (req, res) => {
   try {
     const { name, email, phone, occupation } = req.body;
@@ -71,11 +71,10 @@ export const updateParent = async (req, res) => {
   }
 };
 
-// ================== DELETE PARENT ==================
+// delete parent
 export const deleteParent = async (req, res) => {
   try {
-    // Agar is Parent se koi Student linked hai, delete mat hone do -
-    // warna Student ka parentId ek "dangling reference" ban jayega
+    // Agar is Parent se koi Student linked hai, delete mat hone do - warna Student ka parentId ek "dangling reference" ban jayega
     const linkedStudent = await Student.findOne({ parentId: req.params.id });
     if (linkedStudent) {
       return res.status(400).json({

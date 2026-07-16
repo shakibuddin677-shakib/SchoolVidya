@@ -26,12 +26,7 @@ const resultSchema = new mongoose.Schema(
 // Ek Student ka ek hi paper (ExamSchedule) ke liye sirf EK result ho sakta hai
 resultSchema.index({ studentId: 1, examScheduleId: 1 }, { unique: true });
 
-// PRE-SAVE HOOK: yeh document ke DB mein save hone SE THODA PEHLE
-// automatically chal jata hai - yahan hum grade calculate kar rahe hain
-//
-// NOTE: yeh function "async" hai, isliye "next" parameter BILKUL NAHI
-// chahiye - Mongoose khud samajh jata hai ki async function complete
-// hote hi (ya error throw hote hi) aage kya karna hai
+// document save hone se pehle grade calculate kar leta hai
 resultSchema.pre("save", async function () {
   // "this" yahan wahi Result document hai jo abhi save ho raha hai
   const ExamSchedule = mongoose.model("ExamSchedule");
@@ -46,8 +41,7 @@ resultSchema.pre("save", async function () {
     else if (percentage >= 40) this.grade = "C";
     else this.grade = "F";
   }
-  // yahan "next()" nahi likha - function khatam hote hi Mongoose
-  // khud aage badh jata hai (async style)
+  // yahan "next()" nahi likha - function khatam hote hi Mongoose khud aage badh jata hai (async style)
 });
 
 const Result = mongoose.model("Result", resultSchema);

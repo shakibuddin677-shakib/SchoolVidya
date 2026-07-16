@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-// Parent yahan LOGIN NAHI karta - isliye ismein password/role nahi hai
-// Yeh sirf Student ke saath uske parent ki contact info store karne ke liye hai
+// Parent yahan LOGIN NAHI karta - isliye ismein password/role nahi hai Yeh sirf Student ke saath uske parent ki contact info store karne ke liye hai
 const parentSchema = new mongoose.Schema(
   {
     name: {

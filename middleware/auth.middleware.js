@@ -1,14 +1,10 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 
-// Yeh "Reception Guard" hai - har protected route se pehle yeh chalta hai
-// Kaam: check karo ki valid token hai ya nahi, aur agar hai to
-// req.user mein user ki details daal do taaki aage wale controllers use kar sakein
+// har protected route se pehle chalta hai, token check karke req.user mein user ki details daal deta hai
 const isAuthenticated = async (req, res, next) => {
   try {
-    // Token do jagah se aa sakta hai:
-    // 1) Cookie se (jab browser se request aayi ho)
-    // 2) Authorization header se (jab Postman ya mobile app se request aayi ho)
+    // 1) Cookie se (jab browser se request aayi ho) 2) Authorization header se (jab Postman ya mobile app se request aayi ho)
     const token =
       req.cookies?.token ||
       (req.headers.authorization?.startsWith("Bearer ")
@@ -22,9 +18,7 @@ const isAuthenticated = async (req, res, next) => {
       });
     }
 
-    // jwt.verify token ko decode karta hai AUR check karta hai ki
-    // yeh humare JWT_SECRET se hi bana tha (tamper toh nahi hua)
-    // Agar token expire ho gaya ya fake hai, yeh line error throw karegi
+    // jwt.verify token decode karta hai aur verify karta hai ki tamper nahi hua, expire/fake token pe error throw karega
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // decoded ke andar { id: userId } hota hai (generateToken.js yaad karo)
@@ -37,8 +31,7 @@ const isAuthenticated = async (req, res, next) => {
       });
     }
 
-    //  Sabse important line: ab is request ke aage jitne bhi
-    // controllers/middleware chalenge, sabko pata hoga "kaun request kar raha hai"
+    // ab is request ke aage jitne bhi controllers/middleware chalenge, sabko pata hoga "kaun request kar raha hai"
     req.user = user;
 
     next(); // guard bol raha hai "theek hai, andar jao"

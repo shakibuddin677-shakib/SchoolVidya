@@ -16,8 +16,7 @@ const homeworkSubmissionSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    // Student ke liye attachment COMPULSORY hai - answer file/photo ke bina
-    // submission ka koi matlab nahi
+    // Student ke liye attachment COMPULSORY hai - answer file/photo ke bina submission ka koi matlab nahi
     attachment: {
       public_id: { type: String, required: true },
       url: { type: String, required: true },

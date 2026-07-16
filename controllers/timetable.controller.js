@@ -2,7 +2,7 @@ import Timetable from "../models/timetable.model.js";
 import Section from "../models/section.model.js";
 import Subject from "../models/subject.model.js";
 
-// ================== CREATE PERIOD (ek timetable slot add karo) ==================
+// create period (ek timetable slot add karo)
 export const createPeriod = async (req, res) => {
   try {
     const { sectionId, dayOfWeek, subjectId, teacherId, startTime, endTime } = req.body;
@@ -21,8 +21,7 @@ export const createPeriod = async (req, res) => {
       return res.status(404).json({ success: false, message: "Subject not found" });
     }
 
-    // TEACHER CLASH CHECK: yeh Teacher isi din, isi time pe
-    // kisi AUR Section mein already busy to nahi hai
+    // yeh Teacher isi din, isi time pe kisi AUR Section mein already busy to nahi hai
     const teacherClash = await Timetable.findOne({ teacherId, dayOfWeek, startTime });
     if (teacherClash) {
       return res.status(400).json({
@@ -50,9 +49,7 @@ export const createPeriod = async (req, res) => {
   }
 };
 
-// ================== GET TIMETABLE FOR A TEACHER (apna schedule) ==================
-// Teacher Dashboard ke "Today's Class" widget ke liye - Section-wise nahi,
-// seedha "yeh Teacher jahan-jahan padhata hai" wo saare periods
+// Teacher Dashboard ke "Today's Class" widget ke liye - Section-wise nahi, seedha "yeh Teacher jahan-jahan padhata hai" wo saare periods
 export const getTimetableByTeacher = async (req, res) => {
   try {
     const { teacherId } = req.params;
@@ -68,7 +65,7 @@ export const getTimetableByTeacher = async (req, res) => {
   }
 };
 
-// ================== GET TIMETABLE FOR A SECTION ==================
+// get timetable for a section
 export const getTimetableBySection = async (req, res) => {
   try {
     const { sectionId } = req.params;
@@ -84,7 +81,7 @@ export const getTimetableBySection = async (req, res) => {
   }
 };
 
-// ================== UPDATE PERIOD ==================
+// update period
 export const updatePeriod = async (req, res) => {
   try {
     const { subjectId, teacherId, startTime, endTime } = req.body;
@@ -109,7 +106,7 @@ export const updatePeriod = async (req, res) => {
   }
 };
 
-// ================== DELETE PERIOD ==================
+// delete period
 export const deletePeriod = async (req, res) => {
   try {
     const deleted = await Timetable.findByIdAndDelete(req.params.id);

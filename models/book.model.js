@@ -27,8 +27,7 @@ const bookSchema = new mongoose.Schema(
       required: true,
       default: 1,
     },
-    // Yeh field har issue/return ke saath UPDATE hoga - "kitni copies
-    // ABHI shelf pe available hain" (totalCopies fix rehta hai)
+    // Yeh field har issue/return ke saath UPDATE hoga - "kitni copies ABHI shelf pe available hain" (totalCopies fix rehta hai)
     availableCopies: {
       type: Number,
       required: true,

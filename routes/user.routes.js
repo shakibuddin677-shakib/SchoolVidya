@@ -24,8 +24,7 @@ router.get("/:id", isAuthenticated, allowRoles("admin", "teacher"), getUserById)
 router.put("/:id", isAuthenticated, allowRoles("admin"), updateUser);
 router.delete("/:id", isAuthenticated, allowRoles("admin"), deleteUser);
 
-// upload.single("avatar") - "avatar" wahi field name hai jo Postman
-// mein form-data ke andar file ke saath bhejna hoga
+// upload.single("avatar") - "avatar" wahi field name hai jo Postman mein form-data ke andar file ke saath bhejna hoga
 router.put(
   "/:id/avatar",
   isAuthenticated,

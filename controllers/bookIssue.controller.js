@@ -3,7 +3,7 @@ import BookIssue from "../models/bookIssue.model.js";
 
 const FINE_PER_DAY = 5; // ₹5 per din late return pe
 
-// ================== ISSUE BOOK ==================
+// issue book
 export const issueBook = async (req, res) => {
   try {
     const { bookId, studentId } = req.body;
@@ -39,7 +39,7 @@ export const issueBook = async (req, res) => {
   }
 };
 
-// ================== RETURN BOOK ==================
+// return book
 export const returnBook = async (req, res) => {
   try {
     const issue = await BookIssue.findById(req.params.id);
@@ -81,7 +81,7 @@ export const returnBook = async (req, res) => {
   }
 };
 
-// ================== GET ISSUES BY STUDENT ==================
+// get issues by student
 export const getIssuesByStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
@@ -94,17 +94,13 @@ export const getIssuesByStudent = async (req, res) => {
   }
 };
 
-// ================== GET ALL ISSUES (admin view, status se filter) ==================
+// get all issues (admin view, status se filter)
 export const getAllIssues = async (req, res) => {
   try {
     const { status } = req.query;
     const filter = status ? { status } : {};
 
-    // BUG FIX: pehle sirf .populate("studentId", "rollNo") tha - iska
-    // matlab Student document se SIRF "rollNo" field aata tha, baaki poora
-    // profile (naam, class, section) MISSING rehta tha. Student ka "naam"
-    // khud Student document mein nahi hota - woh User document (userId
-    // field ke through) mein hota hai, isliye NESTED populate zaroori hai.
+    // student ka naam User document se aata hai, isliye nested populate zaroori hai warna sirf rollNo milta tha
     const issues = await BookIssue.find(filter)
       .populate("bookId", "title author")
       .populate({

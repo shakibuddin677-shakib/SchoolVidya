@@ -3,7 +3,7 @@ import HomeworkSubmission from "../models/homeworkSubmission.model.js";
 import Student from "../models/student.model.js";
 import { uploadToCloudinary } from "../utils/cloudinaryUpload.js";
 
-// ================== SUBMIT HOMEWORK (Student) ==================
+// submit homework (Student)
 export const submitHomework = async (req, res) => {
   try {
     const { homeworkId } = req.body;
@@ -12,11 +12,7 @@ export const submitHomework = async (req, res) => {
       return res.status(400).json({ success: false, message: "homeworkId is required" });
     }
 
-    // BUG FIX: studentId used to be taken straight from req.body, which meant
-    // any logged-in student could submit homework AS another student just by
-    // sending a different studentId in the request. We now always derive it
-    // from the authenticated user's own Student profile - never trust the
-    // client for "who is this submission for".
+    // studentId hamesha logged-in user ke apne profile se lete hain, client se bheja studentId trust nahi karte
     const studentProfile = await Student.findOne({ userId: req.user._id });
     if (!studentProfile) {
       return res.status(404).json({ success: false, message: "Student profile not found" });
@@ -40,8 +36,7 @@ export const submitHomework = async (req, res) => {
 
     const submittedAt = new Date();
 
-    // Agar abhi ki date, dueDate se aage nikal chuki hai, "late" mark karo -
-    // Student ne khud kuch nahi bataya, humne khud calculate kiya
+    // Agar abhi ki date, dueDate se aage nikal chuki hai, "late" mark karo - Student ne khud kuch nahi bataya, humne khud calculate kiya
     const status = submittedAt > homework.dueDate ? "late" : "submitted";
 
     const submission = await HomeworkSubmission.create({
@@ -62,7 +57,7 @@ export const submitHomework = async (req, res) => {
   }
 };
 
-// ================== GRADE SUBMISSION (Teacher) ==================
+// grade submission (Teacher)
 export const gradeSubmission = async (req, res) => {
   try {
     const { marksAwarded, feedback } = req.body;
@@ -104,7 +99,7 @@ export const gradeSubmission = async (req, res) => {
   }
 };
 
-// ================== GET SUBMISSIONS FOR A HOMEWORK (Teacher view) ==================
+// get submissions for a homework (Teacher view)
 export const getSubmissionsByHomework = async (req, res) => {
   try {
     const { homeworkId } = req.params;
@@ -119,14 +114,12 @@ export const getSubmissionsByHomework = async (req, res) => {
   }
 };
 
-// ================== GET SUBMISSIONS BY STUDENT (Student's own history) ==================
+// get submissions by student (Student's own history)
 export const getSubmissionsByStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
 
-    // BUG FIX: "totalMarks" missing tha is select mein - isliye student ko
-    // "X / Y marks" nahi dikh pa raha tha (Teacher wale getSubmissionsByHomework
-    // mein yeh field already populate hoti hai, yahan bhool gaye the)
+    // "totalMarks" missing tha is select mein - isliye student ko "X / Y marks" nahi dikh pa raha tha
     const submissions = await HomeworkSubmission.find({ studentId }).populate({
       path: "homeworkId",
       select: "title dueDate subjectId totalMarks",

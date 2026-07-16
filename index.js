@@ -1,8 +1,4 @@
-// "dotenv/config" - yeh special import hai jo file ke top pe hote hi
-// TURANT .env file load kar deta hai, bina "dotenv.config()" alag se
-// likhe. Chunki yeh sabse PEHLI import hai, .env variables baaki
-// saari imports (jo cloudinary.js jaisi files ko chalati hain) se
-// PEHLE hi set ho jaate hain
+// "dotenv/config" - yeh special import hai jo file ke top pe hote hi TURANT .env file load kar deta hai, bina "dotenv.config()" alag se likhe.
 import "dotenv/config";
 
 import express from "express";
@@ -40,12 +36,7 @@ connectDB();
 // Seed Admin (server start hote hi admin account ban jayega agar exist nahi karta)
 seedAdmin();
 
-// NOTE: monthly Tuition Fee auto-generation ("ensureCurrentMonthTuitionFees")
-// yahan background job/interval se NAHI chalaya jaata - simplicity ke liye
-// isko sirf un 3 controllers mein "on-visit" call kiya gaya hai jaha Admin
-// practically hamesha jaata hai jab Fee section kholta hai:
-// getFeeStructures, getFeeCollectionReport, getFeeStatusByStudent
-// (dekho utils/feeAutomation.js ke comments mein detail)
+// monthly Tuition Fee auto-generation ("ensureCurrentMonthTuitionFees") yahan background job/interval se NAHI chalaya jaata - simplicity ke liye isko sirf un 3
 
 // Middleware
 app.use(express.json());

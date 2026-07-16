@@ -6,10 +6,7 @@ import generateToken from "../utils/generateToken.js";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
 
-// Student/Teacher accounts ke liye unka apna Student/Teacher document
-// (jisme rollNo, classId, sectionId, employeeId waghera hai) - Student
-// khud yeh nahi maang sakta tha (getUserById sirf admin/teacher allow
-// karta hai), isliye login + checkAuth response mein hi bhej dete hain
+// login aur checkAuth response mein hi Student/Teacher profile bhej dete hain, taaki student ko alag se maangna na pade
 const getProfileForUser = async (user) => {
   if (user.role === "student") {
     return Student.findOne({ userId: user._id })
@@ -26,7 +23,7 @@ const getProfileForUser = async (user) => {
   return null;
 };
 
-// ================== LOGIN ==================
+// login
 export const loginUser = async (req, res) => {
   try {
     let { email, password } = req.body;
@@ -40,9 +37,7 @@ export const loginUser = async (req, res) => {
 
     email = email.trim().toLowerCase();
 
-    // FIX: model mein password "select: false" hai, isliye query mein
-    // explicitly ".select('+password')" likhna zaroori hai, warna
-    // user.password undefined milega aur bcrypt.compare crash karega
+    // password field select: false hai, isliye query mein explicitly +password add karna padta hai
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
@@ -93,12 +88,7 @@ const cookieOptions = {
   }
 };
 
-// ================== CHECK AUTH ==================
-// Yeh route frontend use karta hai jab website reload ho -
-// "abhi bhi login hai ya nahi, aur agar hai to role kya hai"
-// Isse "isAuthenticated" middleware pehle chalta hai isliye
-// yahan tak pahuchne ka matlab hai token already valid hai -
-// bas req.user ko wapas bhej do
+// website reload hone par frontend yeh check karta hai ki login abhi bhi valid hai ya nahi
 export const checkAuth = async (req, res) => {
   const profile = await getProfileForUser(req.user);
   return res.status(200).json({
@@ -107,7 +97,7 @@ export const checkAuth = async (req, res) => {
   });
 };
 
-// ================== LOGOUT ==================
+// logout
 export const logoutUser = async (req, res) => {
   try {
     res.cookie("token", "", {
@@ -124,7 +114,7 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-// ================== FORGOT PASSWORD ==================
+// forgot password
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -135,18 +125,12 @@ export const forgotPassword = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    // SECURITY FIX: pehle yahan "User not found" (400) return hota tha jab
-    // email exist nahi karta tha - isse koi bhi attacker email-by-email try
-    // karke pata laga sakta tha ki school mein kaunse emails REGISTERED hain
-    // (user enumeration). Ab hum email exist kare ya na kare, dono cases mein
-    // SAME generic success response bhejte hain - reset link sirf tabhi
-    // bheja jaata hai jab user genuinely exist karta ho.
+    // security: email exist na ho tab bhi same generic response bhejte hain, warna attacker registered emails guess kar sakta hai
     if (user) {
       // Plain token generate karo (email mein yehi bhejenge)
       const resetToken = crypto.randomBytes(20).toString("hex");
 
-      // DB mein plain token save NAHI karte - hash karke save karte hain
-      // (agar DB leak ho jaye to attacker reset link use na kar paaye)
+      // DB mein plain token save NAHI karte - hash karke save karte hain (agar DB leak ho jaye to attacker reset link use na kar paaye)
       const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 
       user.resetPasswordToken = hashedToken;
@@ -174,8 +158,7 @@ export const forgotPassword = async (req, res) => {
         </div>
       `;
 
-      // FIX: pehle "HTMLAllCollection" key bheji ja rahi thi jo sendEmail.js
-      // expect hi nahi karta tha - ab dono jagah "html" naam consistent hai
+      // pehle "HTMLAllCollection" key bheji ja rahi thi jo sendEmail.js expect hi nahi karta tha - ab dono jagah "html" naam consistent hai
       await sendEmail({
         email: user.email,
         subject: "Password Reset Request",
@@ -193,11 +176,10 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// ================== RESET PASSWORD ==================
+// reset password
 export const resetPassword = async (req, res) => {
   try {
-    // FIX: pehle "const token = req.params" likha tha - yeh poora object
-    // { token: "abc123" } le raha tha, string nahi. Isliye hashing fail ho rahi thi.
+    // pehle "const token = req.params" likha tha - yeh poora object { token: "abc123" } le raha tha, string nahi.
     const { token } = req.params;
     const { password } = req.body;
 
@@ -217,8 +199,7 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordExpire = undefined;
     await user.save();
 
-    // FIX: pehle "success: 'Password reset successfull'" tha -
-    // success hamesha boolean hona chahiye, message string mein jana chahiye
+    // pehle "success: 'Password reset successfull'" tha - success hamesha boolean hona chahiye, message string mein jana chahiye
     res.status(200).json({
       success: true,
       message: "Password reset successful",

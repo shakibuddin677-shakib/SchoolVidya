@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-// Yeh humara base "User" model hai - Admin, Teacher, Student
-// teeno isi ek collection mein store honge, "role" field se differentiate karenge
+// Yeh humara base "User" model hai - Admin, Teacher, Student teeno isi ek collection mein store honge, "role" field se differentiate karenge
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -20,7 +19,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 6,
-      select: false, // IMPORTANT: by default password kabhi query mein wapas nahi aayega
+      select: false, // password by default query mein wapas nahi aayega
     },
     role: {
       type: String,

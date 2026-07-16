@@ -1,9 +1,7 @@
 import Homework from "../models/homework.model.js";
 import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinaryUpload.js";
 
-// ================== CREATE HOMEWORK (Teacher assigns) ==================
-// Attachment OPTIONAL hai - agar Teacher ne file bheji hai (req.file),
-// tabhi Cloudinary pe upload karo
+// Attachment OPTIONAL hai - agar Teacher ne file bheji hai (req.file), tabhi Cloudinary pe upload karo
 export const createHomework = async (req, res) => {
   try {
     const { sectionId, subjectId, title, description, dueDate, totalMarks } = req.body;
@@ -48,7 +46,7 @@ export const createHomework = async (req, res) => {
   }
 };
 
-// ================== GET HOMEWORK BY SECTION ==================
+// get homework by section
 export const getHomeworkBySection = async (req, res) => {
   try {
     const { sectionId } = req.params;
@@ -67,7 +65,7 @@ export const getHomeworkBySection = async (req, res) => {
   }
 };
 
-// ================== GET SINGLE HOMEWORK ==================
+// get single homework
 export const getHomeworkById = async (req, res) => {
   try {
     const homework = await Homework.findById(req.params.id)
@@ -82,7 +80,7 @@ export const getHomeworkById = async (req, res) => {
   }
 };
 
-// ================== UPDATE HOMEWORK ==================
+// update homework
 export const updateHomework = async (req, res) => {
   try {
     const { title, description, dueDate, totalMarks } = req.body;
@@ -109,7 +107,7 @@ export const updateHomework = async (req, res) => {
   }
 };
 
-// ================== DELETE HOMEWORK ==================
+// delete homework
 export const deleteHomework = async (req, res) => {
   try {
     const homework = await Homework.findById(req.params.id);

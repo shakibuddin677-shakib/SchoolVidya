@@ -21,8 +21,7 @@ const sectionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Ek hi Class ke andar do section same naam ke nahi ban sakte
-// (jaise Grade 5 mein do baar "A" section)
+// Ek hi Class ke andar do section same naam ke nahi ban sakte (jaise Grade 5 mein do baar "A" section)
 sectionSchema.index({ name: 1, classId: 1 }, { unique: true });
 
 const Section = mongoose.model("Section", sectionSchema);

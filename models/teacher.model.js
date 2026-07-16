@@ -18,8 +18,7 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    // Ek Teacher multiple Subjects padha sakta hai - isliye array of ObjectIds
-    // Subject Model abhi nahi bana - us chapter mein ise use karenge
+    // Ek Teacher multiple Subjects padha sakta hai - isliye array of ObjectIds Subject Model abhi nahi bana - us chapter mein ise use karenge
     subjects: [
       {
         type: mongoose.Schema.Types.ObjectId,

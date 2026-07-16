@@ -40,8 +40,7 @@ const studentSchema = new mongoose.Schema(
       required: true,
     },
     parentId: {
-      // Parent Model abhi nahi bana hai - "Parent Management" chapter mein banayenge
-      // tab tak yeh field optional rahega (null ho sakta hai)
+      // Parent Model abhi nahi bana hai - "Parent Management" chapter mein banayenge tab tak yeh field optional rahega (null ho sakta hai)
       type: mongoose.Schema.Types.ObjectId,
       ref: "Parent",
       default: null,

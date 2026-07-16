@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-// Yeh ek Exam ke andar EK Subject ka paper represent karta hai
-// (jaise "1st Quarterly" exam ke andar "Math ka paper, 6 May, 100 marks")
+// Yeh ek Exam ke andar EK Subject ka paper represent karta hai (jaise "1st Quarterly" exam ke andar "Math ka paper, 6 May, 100 marks")
 const examScheduleSchema = new mongoose.Schema(
   {
     examId: {

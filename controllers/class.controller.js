@@ -9,7 +9,6 @@ import ExamSchedule from "../models/examSchedule.model.js";
 import Result from "../models/result.model.js";
 import Timetable from "../models/timetable.model.js";
 
-// ================== CREATE CLASS ==================
 // Sirf Admin isko call kar payega (role.middleware route mein check karega)
 export const createClass = async (req, res) => {
   try {
@@ -22,9 +21,7 @@ export const createClass = async (req, res) => {
       });
     }
 
-    // Duplicate check pehle se kar lete hain, taaki user ko
-    // Mongoose ki confusing "duplicate key" error ke bajaye
-    // ek clean message mile
+    // Duplicate check pehle se kar lete hain, taaki user ko Mongoose ki confusing "duplicate key" error ke bajaye ek clean message mile
     const existingClass = await Class.findOne({ name, academicYear });
     if (existingClass) {
       return res.status(400).json({
@@ -46,21 +43,17 @@ export const createClass = async (req, res) => {
   }
 };
 
-// ================== GET ALL CLASSES ==================
-// Pagination + search dono support karta hai
-// Example: GET /api/classes?page=1&limit=10&search=grade
+// Pagination + search dono support karta hai Example: GET /api/classes?page=1&limit=10&search=grade
 export const getAllClasses = async (req, res) => {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
     const search = req.query.search || "";
 
-    // $regex "options: i" ka matlab case-insensitive search
-    // (user "grade" likhe ya "Grade", dono match honge)
+    // $regex "options: i" ka matlab case-insensitive search (user "grade" likhe ya "Grade", dono match honge)
     const filter = search ? { name: { $regex: search, $options: "i" } } : {};
 
-    // Total count nikalna zaroori hai taaki frontend ko pata chale
-    // kitne total pages hain (page 1, 2, 3...)
+    // Total count nikalna zaroori hai taaki frontend ko pata chale kitne total pages hain (page 1, 2, 3...)
     const totalClasses = await Class.countDocuments(filter);
 
     const classes = await Class.find(filter)
@@ -82,7 +75,7 @@ export const getAllClasses = async (req, res) => {
   }
 };
 
-// ================== GET SINGLE CLASS ==================
+// get single class
 export const getClassById = async (req, res) => {
   try {
     const classData = await Class.findById(req.params.id);
@@ -97,7 +90,7 @@ export const getClassById = async (req, res) => {
   }
 };
 
-// ================== UPDATE CLASS ==================
+// update class
 export const updateClass = async (req, res) => {
   try {
     const { name, academicYear } = req.body;
@@ -125,14 +118,12 @@ export const updateClass = async (req, res) => {
   }
 };
 
-// ================== DELETE CLASS ==================
+// delete class
 export const deleteClass = async (req, res) => {
   try {
     const classId = req.params.id;
 
-    // SAFETY CHECK: agar is Class mein abhi bhi Students hain, delete mat
-    // hone do - warna un Students ka classId/sectionId "dangling reference"
-    // ban jayega (bilkul jaisa Parent delete ke liye pehle kiya tha)
+    // agar is Class mein abhi bhi Students hain, delete mat hone do - warna un Students ka classId/sectionId "dangling reference" ban jayega
     const studentCount = await Student.countDocuments({ classId });
     if (studentCount > 0) {
       return res.status(400).json({
@@ -141,8 +132,7 @@ export const deleteClass = async (req, res) => {
       });
     }
 
-    // Ab Class mein koi Student nahi hai, isliye uski saari "child" records
-    // safely cascade-delete kar sakte hain
+    // Ab Class mein koi Student nahi hai, isliye uski saari "child" records safely cascade-delete kar sakte hain
     const sections = await Section.find({ classId }).select("_id");
     const sectionIds = sections.map((s) => s._id);
 

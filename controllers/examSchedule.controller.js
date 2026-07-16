@@ -3,7 +3,7 @@ import ExamSchedule from "../models/examSchedule.model.js";
 import Exam from "../models/exam.model.js";
 import Subject from "../models/subject.model.js";
 
-// ================== CREATE EXAM SCHEDULE (ek Subject ka paper add karo) ==================
+// create exam schedule (ek Subject ka paper add karo)
 export const createExamSchedule = async (req, res) => {
   try {
     const { examId, subjectId, date, maxMarks } = req.body;
@@ -39,7 +39,6 @@ export const createExamSchedule = async (req, res) => {
   }
 };
 
-// ================== GET SCHEDULES BY EXAM ==================
 // Poore Exam ka "timetable" - kaunsa subject kis din
 export const getSchedulesByExam = async (req, res) => {
   try {
@@ -55,7 +54,7 @@ export const getSchedulesByExam = async (req, res) => {
   }
 };
 
-// ================== UPDATE EXAM SCHEDULE ==================
+// update exam schedule
 export const updateExamSchedule = async (req, res) => {
   try {
     const { date, maxMarks } = req.body;
@@ -80,7 +79,7 @@ export const updateExamSchedule = async (req, res) => {
   }
 };
 
-// ================== DELETE EXAM SCHEDULE ==================
+// delete exam schedule
 export const deleteExamSchedule = async (req, res) => {
   try {
     const deleted = await ExamSchedule.findByIdAndDelete(req.params.id);

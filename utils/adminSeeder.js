@@ -1,8 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 
-// Server start hote hi ek Admin account automatically ban jaye,
-// taaki humein Postman se manually admin create na karna pade
+// Server start hote hi ek Admin account automatically ban jaye, taaki humein Postman se manually admin create na karna pade
 const seedAdmin = async () => {
   try {
     const adminExists = await User.findOne({ email: process.env.ADMIN_EMAIL });

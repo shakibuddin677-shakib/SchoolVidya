@@ -1,7 +1,7 @@
 import FeeStructure from "../models/feeStructure.model.js";
 import { ensureCurrentMonthTuitionFees } from "../utils/feeAutomation.js";
 
-// ================== CREATE FEE STRUCTURE ==================
+// create fee structure
 export const createFeeStructure = async (req, res) => {
   try {
     const { classId, term, month, feeType, amount, dueDate } = req.body;
@@ -10,8 +10,7 @@ export const createFeeStructure = async (req, res) => {
       return res.status(400).json({ success: false, message: "Class, fee type, and amount are required" });
     }
 
-    // FEATURE: "Tuition Fee" MONTH-wise hai, baaki sab fee types TERM-wise
-    // (jaise pehle the) - is se decide hota hai konsa field required hai
+    // "Tuition Fee" MONTH-wise hai, baaki sab fee types TERM-wise (jaise pehle the) - is se decide hota hai konsa field required hai
     const billingType = feeType === "Tuition Fee" ? "month" : "term";
 
     if (billingType === "month" && !month) {
@@ -54,12 +53,10 @@ export const createFeeStructure = async (req, res) => {
   }
 };
 
-// ================== GET FEE STRUCTURES (class ke saare fee types) ==================
+// get fee structures (class ke saare fee types)
 export const getFeeStructures = async (req, res) => {
   try {
-    // Admin jab bhi Fee Structures dekhta hai, pehle turant check kar lo ki
-    // kisi class ka current month ka Tuition Fee structure to missing nahi
-    // hai (24h interval ka wait na karna pade)
+    // Admin jab bhi Fee Structures dekhta hai, pehle turant check kar lo ki kisi class ka current month ka Tuition Fee structure to missing nahi hai
     await ensureCurrentMonthTuitionFees();
 
     const { classId } = req.query;
@@ -75,7 +72,7 @@ export const getFeeStructures = async (req, res) => {
   }
 };
 
-// ================== UPDATE FEE STRUCTURE ==================
+// update fee structure
 export const updateFeeStructure = async (req, res) => {
   try {
     const { term, month, feeType, amount, dueDate } = req.body;
@@ -100,7 +97,7 @@ export const updateFeeStructure = async (req, res) => {
   }
 };
 
-// ================== DELETE FEE STRUCTURE ==================
+// delete fee structure
 export const deleteFeeStructure = async (req, res) => {
   try {
     const deleted = await FeeStructure.findByIdAndDelete(req.params.id);
